@@ -1,0 +1,36 @@
+description: "Use Certbot to install Let's Encrypt certs"
+
+variables:
+  module_certbot_email: certbot@example.web
+  module_certbot_domains: []
+    # An example item:-
+    # -
+    #   name: "test.example.com"
+    #   server: "apache"
+  
+
+tasks:
+    -
+      name: "Install certbot"
+      command: "shell:exec"
+      max_runtime: 330
+      sudo: true
+      arguments:
+        command-line: "wget https://dl.eff.org/certbot-auto -O /usr/local/sbin/certbot-auto"
+    -
+      name: "Permissions certbot"
+      command: "shell:exec"
+      max_runtime: 330
+      sudo: true
+      arguments:
+        command-line: "chmod a+x /usr/local/sbin/certbot-auto"
+
+    -
+      name: "Install certificates"
+      command: "shell:exec"
+      max_runtime: 330
+      sudo: true
+      arguments:
+        command-line: "certbot-auto --non-interactive --agree-tos --redirect --email {{ module_certbot_email }} --{{item.server}} --domains {{ item.name }}"
+      with_items:
+        module_certbot_domains
